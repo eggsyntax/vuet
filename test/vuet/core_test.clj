@@ -1,0 +1,7 @@
+(ns vuet.core-test
+  (:require [clojure.test :refer :all]
+            [vuet.core :refer :all]))
+
+(deftest a-test
+  (testing "FIXME, I fail."
+    (is (= 0 1))))
