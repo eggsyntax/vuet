@@ -17,7 +17,7 @@
   (System/exit 0))
 
 (defn new-zipper [& args]
-  (reset! index 0)
+  (reset! index -1)
   (z/seq-zip (list (next-index))))
 
 (defn contents [loc]
@@ -31,10 +31,17 @@
   (println "Path to here:")
   (dorun (map println (z/path loc))))
 
-(defn add-node [add-fn loc]
+(defn wrap
+  "Wrap the current loc"
+  [loc]
+  (z/edit loc #(list %)))
+
+(defn add-node
+  "Add a new node, using the specified fn"
+  [add-fn loc]
   (if (z/branch? loc)
     (add-fn loc (next-index))
-    (println "Can't add a node from a leaf position")))
+    (println "\nCan't add a node from a leaf position")))
 
 (defn insert [loc]
   (add-node z/insert-child loc))
@@ -56,7 +63,7 @@
 (defn help [& args]
   (println)
   (println
-    "(d)own, (u)p, (l)eft, (r)ight, show (c)ontents, (s)how path, e(x)plain, (!)reset, (q)uit, (i)nsert-child, (a)ppend-child"))
+    "(d)own, (u)p, (l)eft, (r)ight, show (c)ontents, (s)how path, e(x)plain, (!)reset, (q)uit, (i)nsert-child, (a)ppend-child, (w)rap"))
 
 (def char-fn-map
   {\d z/down
@@ -73,6 +80,7 @@
 
    \i insert
    \a append
+   \w wrap
 
    \! new-zipper
    \? help
