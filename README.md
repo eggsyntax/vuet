@@ -1,36 +1,30 @@
 # vuet
 
-FIXME: description
+Interactive Huet zipper for learning purposes
 
 ## Installation
 
-Download from http://example.com/FIXME.
+git clone https://github.com/eggsyntax/vuet.git
 
 ## Usage
 
-FIXME: explanation
-
-    $ java -jar vuet-0.1.0-standalone.jar [args]
+    $ lein run
 
 ## Options
 
-FIXME: listing of options this app accepts.
+
 
 ## Examples
 
-...
+Type '?' for help
 
 ### Bugs
 
 ...
 
-### Any Other Sections
-### That You Think
-### Might be Useful
-
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015 Egg Syntax
 
 Distributed under the Eclipse Public License either version 1.0 or (at
 your option) any later version.
