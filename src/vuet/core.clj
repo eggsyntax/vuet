@@ -127,15 +127,16 @@
     (or f no-op)))
 
 (defn act-on
-  "Determine an action based on input and statefully apply it to the
-  zipper. This mixes concerns in a way I don't like, though."
+  "Determine and apply a function to the zipper based on input. Return the modified
+ zipper (or return the original zipper if the called fn returns nil)."
   [zipper input]
   (let [next-fn (interpret input)
         next-zip (next-fn zipper)]
-    (when next-zip
+    (if next-zip
       (do
-        (swap! history conj next-zip)))
-    next-zip))
+        (swap! history conj next-zip)
+        next-zip)
+      zipper)))
 
 (defn -main
   "Loop indefinitely over user input, interpreting each char as a
@@ -148,9 +149,7 @@
       (println)
       (println zipper)
       (let [input (char (.readCharacter term System/in))
-            next-zip (act-on zipper input)]
-        (recur
-         (or         ; action fns either
-          next-zip  ; return the modified zipper or return nil,
-          zipper))  ; in which case act again on current zipper
-        ))))
+            _ (println "zipper going in is " zipper)
+            next-zip (act-on zipper input)
+            _ (println "next-zip is now " next-zip)]
+        (recur next-zip)))))
