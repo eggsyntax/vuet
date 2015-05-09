@@ -1,6 +1,5 @@
 (ns vuet.core
   (:use [clojure.pprint :only (pprint)]
-        [clojure.tools.trace]
         [clojure.string :only (join)])
   (:require [clojure.zip :as z])
   (:import jline.Terminal)
@@ -24,7 +23,7 @@
 (defn contents [loc]
   (println)
   (println "Node contents:")
-  (println "  "(z/node loc))
+  (println "  " (z/node loc))
   loc)
 
 (defn show-path [loc]
@@ -44,13 +43,13 @@
     (add-fn loc (next-index))
     (println "\nCan't add a node from a leaf position")))
 
-(deftrace insert [loc]
+(defn insert [loc]
   (add-node z/insert-child loc))
 
 (defn append [loc]
   (add-node z/append-child loc))
 
-(defn next [loc]
+(defn z-next [loc]
   (if (z/end? (z/next loc))
     (println "Can't usefully continue.")
     (z/next loc)))
@@ -72,29 +71,27 @@
 
 (defn undo [& args]
     ; Drop the current state off the history
-    (-drop-and-return history)
+  (-drop-and-return history)
     ; Now drop the next-last state off the history and return it
     ; (It'll get added back on)
-    (-drop-and-return history))
+  (-drop-and-return history))
 
 (defn print-from-root [loc]
   (println)
   (println "The view from root:")
   (print (z/root loc))
-  (println)
-  )
+  (println))
 
 
 (defn explain [loc]
   ;TODO
   ;(let [node ])
-
   )
 
 (defn help [& args]
   (println)
   (println
-    "(d)own, (u)p, (l)eft, (r)ight, show (c)ontents, (s)how path, e(x)plain, (!)reset, (q)uit, (i)nsert-child, (a)ppend-child, (w)rap"))
+   "(d)own, (u)p, (l)eft, (r)ight, show (c)ontents, (s)how path, e(x)plain, (!)reset, (q)uit, (i)nsert-child, (a)ppend-child, (w)rap"))
 
 (def char-fn-map
   {\d z/down
@@ -102,7 +99,7 @@
    \r z/right
    \l z/left
 
-   \n next ; special handling for end
+   \n z-next ; special handling for end
    \p z/prev
 
    \c contents
@@ -129,6 +126,17 @@
   (let [f (get char-fn-map (char c) nil)]
     (or f no-op)))
 
+(defn act-on
+  "Determine an action based on input and statefully apply it to the
+  zipper. This mixes concerns in a way I don't like, though."
+  [zipper input]
+  (let [next-fn (interpret input)
+        next-zip (next-fn zipper)]
+    (when next-zip
+      (do
+        (swap! history conj next-zip)))
+    next-zip))
+
 (defn -main
   "Loop indefinitely over user input, interpreting each char as a
   zipper command"
@@ -140,14 +148,9 @@
       (println)
       (println zipper)
       (let [input (char (.readCharacter term System/in))
-            next-fn (interpret input)
-            next-zip (next-fn zipper)]
-        (when next-zip
-          (do
-            (swap! history conj next-zip)))
+            next-zip (act-on zipper input)]
         (recur
-          (or         ; action fns either
-            next-zip  ; return the modified zipper or return nil,
-            zipper))  ; in which case act again on current zipper
+         (or         ; action fns either
+          next-zip  ; return the modified zipper or return nil,
+          zipper))  ; in which case act again on current zipper
         ))))
-
