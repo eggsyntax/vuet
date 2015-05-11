@@ -134,6 +134,7 @@
         next-zip (next-fn zipper)]
     (if next-zip
       (do
+        ; TODO replace this complected swap with an add-watch elsewhere
         (swap! history conj next-zip)
         next-zip)
       zipper)))
